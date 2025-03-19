@@ -1,38 +1,41 @@
-# notre.diaporama
-const CLIENT_ID = "TON_CLIENT_ID"; // Remplace par ton ID client
-const API_KEY = "TA_CLÉ_API"; // Remplace par ta clé API
-const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
-const handleFileSelect = async (index) => {
-  await loadGooglePicker(index);
-};
+    <div className="max-w-2xl mx-auto p-4">
+      <Card>
+        <CardContent className="p-4 space-y-4">
+          <div>
+            <Label>Votre nom</Label>
+            <Input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+          </div>
 
-const loadGooglePicker = (index) => {
-  gapi.load("client:auth2", async () => {
-    await gapi.client.init({
-      apiKey: API_KEY,
-      clientId: CLIENT_ID,
-      scope: SCOPES,
-      discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-    });
+          <div>
+            <Label>Votre lien avec les mariés</Label>
+            <Select onValueChange={(value) => setFormData({ ...formData, relation: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez votre lien" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="famille_claire">Famille de Claire</SelectItem>
+                <SelectItem value="famille_tristan">Famille de Tristan</SelectItem>
+                <SelectItem value="amis">Amis</SelectItem>
+                <SelectItem value="collegues_claire">Collègues de Claire</SelectItem>
+                <SelectItem value="collegues_tristan">Collègues de Tristan</SelectItem>
+                <SelectItem value="autre">Autre</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-    gapi.auth2.getAuthInstance().signIn().then(() => {
-      gapi.load("picker", () => {
-        const picker = new google.picker.PickerBuilder()
-          .addView(google.picker.ViewId.DOCS_IMAGES)
-          .setOAuthToken(gapi.auth.getToken().access_token)
-          .setCallback((data) => {
-            if (data.action === google.picker.Action.PICKED) {
-              const fileUrl = data.docs[0].url;
-              const newPhotos = [...formData.photos];
-              newPhotos[index].file = fileUrl;
-              newPhotos[index].preview = fileUrl;
-              setFormData({ ...formData, photos: newPhotos });
-            }
-          })
-          .build();
-        picker.setVisible(true);
-      });
-    });
-  });
-};
+          {formData.photos.map((photo, index) => (
+            <div key={index} className="border-t pt-4 space-y-2">
+              <Label>Photo {index + 1}</Label>
+              <Input type="date" value={photo.date} onChange={(e) => handleInputChange(e, index, "date")} />
+              <Input type="text" placeholder="Lieu" value={photo.place} onChange={(e) => handleInputChange(e, index, "place")} />
+              <Input type="text" placeholder="Légende" value={photo.caption} onChange={(e) => handleInputChange(e, index, "caption")} />
+              <Button onClick={() => handleFileSelect(index)}>Sélectionner une photo</Button>
+              {photo.preview && <img src={photo.preview} alt={`Preview ${index + 1}`} className="mt-2 w-32 h-32 object-cover" />}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
